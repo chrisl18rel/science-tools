@@ -393,10 +393,11 @@
 
           <!-- Scale Builder -->
           <a class="tool-card" href="https://chrisl18rel.github.io/scale-builder/" target="_blank" rel="noopener">
-            <div class="card-preview" style="overflow:hidden; pointer-events:none; background:#1a1d23;">
+            <div class="card-preview iframe-wrap" style="overflow:hidden; pointer-events:none; background:#1a1d23; position:relative;">
               <iframe src="https://chrisl18rel.github.io/scale-builder/"
                       scrolling="no"
-                      style="width:200%; height:320px; transform:scale(0.5); transform-origin:top left; border:none; display:block;">
+                      class="preview-iframe"
+                      style="border:none; display:block; position:absolute; top:0; left:0; transform-origin:top left;">
               </iframe>
             </div>
             <div class="card-body">
@@ -412,10 +413,11 @@
 
           <!-- PE Diagram Maker -->
           <a class="tool-card" href="https://chrisl18rel.github.io/PE-Diagram-Maker/" target="_blank" rel="noopener">
-            <div class="card-preview" style="overflow:hidden; pointer-events:none; background:#1a1d23;">
+            <div class="card-preview iframe-wrap" style="overflow:hidden; pointer-events:none; background:#1a1d23; position:relative;">
               <iframe src="https://chrisl18rel.github.io/PE-Diagram-Maker/"
                       scrolling="no"
-                      style="width:200%; height:320px; transform:scale(0.5); transform-origin:top left; border:none; display:block;">
+                      class="preview-iframe"
+                      style="border:none; display:block; position:absolute; top:0; left:0; transform-origin:top left;">
               </iframe>
             </div>
             <div class="card-body">
@@ -451,6 +453,35 @@
       document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('active'));
       document.getElementById('tab-' + name).classList.add('active');
       btn.classList.add('active');
+    }
+
+    // The virtual viewport width we tell the iframe it has.
+    // Tools were designed at ~1200px wide; we scale them down to fit the card.
+    const IFRAME_VIRTUAL_W = 1200;
+    const IFRAME_VIRTUAL_H = 700;
+
+    function scaleIframe(wrap) {
+      const iframe = wrap.querySelector('.preview-iframe');
+      if (!iframe) return;
+      const cardW   = wrap.offsetWidth;
+      const cardH   = wrap.offsetHeight;  // 160px from CSS
+      const scale   = cardW / IFRAME_VIRTUAL_W;
+      iframe.style.width  = IFRAME_VIRTUAL_W + 'px';
+      iframe.style.height = IFRAME_VIRTUAL_H + 'px';
+      iframe.style.transform = `scale(${scale})`;
+    }
+
+    function scaleAll() {
+      document.querySelectorAll('.iframe-wrap').forEach(scaleIframe);
+    }
+
+    // Scale on load and whenever card width changes (e.g. window resize)
+    window.addEventListener('load', scaleAll);
+    window.addEventListener('resize', scaleAll);
+
+    if (window.ResizeObserver) {
+      const ro = new ResizeObserver(scaleAll);
+      document.querySelectorAll('.iframe-wrap').forEach(el => ro.observe(el));
     }
   </script>
 
