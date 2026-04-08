@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Science Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #1a1d23;
+      --surface:     #22262e;
+      --surface2:    #2a2f3a;
+      --surface3:    #313744;
+      --border:      #363c4a;
+      --accent:      #4a90e2;
+      --accent2:     #5ba3f5;
+      --text:        #e8eaf0;
+      --text-muted:  #8a92a6;
+      --text-dim:    #555e72;
+      --green:       #4caf79;
+      --amber:       #f4a641;
+      --red:         #ef6c6c;
+      --radius:      8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .site-logo {
+      font-family: 'DM Mono', monospace;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+    .site-logo span { color: var(--accent); }
+    .header-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-left: 4px;
+    }
+
+    /* ── Subject tabs (left sidebar) ── */
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 57px);
+    }
+
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+      position: sticky;
+      top: 57px;
+      height: calc(100vh - 57px);
+      overflow-y: auto;
+    }
+
+    .sidebar-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      padding: 0 20px 8px;
+      margin-top: 4px;
+    }
+
+    .subject-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      background: none;
+      border: none;
+      border-left: 3px solid transparent;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 20px 10px 17px;
+      cursor: pointer;
+      text-align: left;
+      transition: color 0.15s, background 0.15s, border-color 0.15s;
+    }
+    .subject-btn:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+    .subject-btn.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+      background: rgba(74, 144, 226, 0.08);
+    }
+    .subject-btn .icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .subject-badge {
+      margin-left: auto;
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1px 7px;
+      color: var(--text-muted);
+    }
+    .subject-btn.active .subject-badge {
+      background: rgba(74,144,226,0.15);
+      border-color: rgba(74,144,226,0.3);
+      color: var(--accent);
+    }
+
+    /* ── Main content ── */
+    .main {
+      flex: 1;
+      padding: 28px 32px;
+      overflow-y: auto;
+    }
+
+    /* ── Tab panes ── */
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; animation: fadeIn 0.18s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Results bar ── */
+    .results-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .results-count {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .results-count span {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-left: 8px;
+    }
+
+    /* ── Filter chips ── */
+    .filter-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(74,144,226,0.12);
+      border: 1px solid rgba(74,144,226,0.35);
+      border-radius: 20px;
+      color: var(--accent2);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+    }
+
+    /* ── Tool card grid ── */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .tool-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    .tool-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 32px rgba(74,144,226,0.15);
+    }
+
+    .card-preview {
+      height: 160px;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card-preview-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+    }
+    .card-preview-placeholder .preview-icon {
+      font-size: 42px;
+      opacity: 0.6;
+    }
+    .card-preview-placeholder .preview-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      opacity: 0.5;
+    }
+
+    /* Subtle diagonal stripe pattern for placeholder */
+    .card-preview.stripes {
+      background-image: repeating-linear-gradient(
+        -45deg,
+        var(--surface2) 0px,
+        var(--surface2) 12px,
+        var(--surface3) 12px,
+        var(--surface3) 24px
+      );
+    }
+
+    .card-body {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+    }
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .card-tags {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .card-tag {
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 7px;
+      color: var(--text-dim);
+    }
+
+    /* ── Coming soon pane ── */
+    .coming-soon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 360px;
+      gap: 16px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .coming-soon-icon {
+      font-size: 64px;
+      opacity: 0.3;
+    }
+    .coming-soon h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      opacity: 0.5;
+    }
+    .coming-soon p {
+      font-size: 13px;
+      color: var(--text-muted);
+      max-width: 320px;
+      line-height: 1.6;
+      opacity: 0.7;
+    }
+    .coming-soon-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      color: var(--text-dim);
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-logo">⚗️ science<span>tools</span></div>
+    <span class="header-sub">— Interactive resources for the classroom</span>
+  </header>
+
+  <div class="layout">
+
+    <!-- ── Sidebar ── -->
+    <nav class="sidebar">
+      <div class="sidebar-section-label">Subject</div>
+
+      <button class="subject-btn" data-tab="biology" onclick="switchTab('biology', this)">
+        <span class="icon">🧬</span> Biology
+        <span class="subject-badge">Soon</span>
+      </button>
+
+      <button class="subject-btn active" data-tab="chemistry" onclick="switchTab('chemistry', this)">
+        <span class="icon">🧪</span> Chemistry
+        <span class="subject-badge">2</span>
+      </button>
+
+      <button class="subject-btn" data-tab="physics" onclick="switchTab('physics', this)">
+        <span class="icon">⚛️</span> Physics
+        <span class="subject-badge">Soon</span>
+      </button>
+    </nav>
+
+    <!-- ── Main ── -->
+    <main class="main">
+
+      <!-- Biology tab -->
+      <div id="tab-biology" class="tab-pane">
+        <div class="coming-soon">
+          <div class="coming-soon-icon">🧬</div>
+          <h2>Biology Tools</h2>
+          <p>Interactive biology resources are currently in development. Check back soon.</p>
+          <span class="coming-soon-badge">COMING SOON</span>
+        </div>
+      </div>
+
+      <!-- Chemistry tab -->
+      <div id="tab-chemistry" class="tab-pane active">
+        <div class="results-bar">
+          <div class="results-count">2 tools <span>in Chemistry</span></div>
+        </div>
+
+        <div class="filter-chips">
+          <span class="chip">Chemistry ✕</span>
+          <span class="chip">HTML5 ✕</span>
+        </div>
+
+        <div class="tool-grid">
+
+          <!-- Scale Builder -->
+          <a class="tool-card" href="https://chrisl18rel.github.io/scale-builder/" target="_blank" rel="noopener">
+            <div class="card-preview" style="overflow:hidden; pointer-events:none; background:#1a1d23;">
+              <iframe src="https://chrisl18rel.github.io/scale-builder/"
+                      scrolling="no"
+                      style="width:200%; height:320px; transform:scale(0.5); transform-origin:top left; border:none; display:block;">
+              </iframe>
+            </div>
+            <div class="card-body">
+              <div class="card-title">Scale Builder</div>
+              <div class="card-desc">Generate labeled measurement instrument images — ruler, graduated cylinder, and triple beam balance — for use in lab worksheets and assessments.</div>
+              <div class="card-tags">
+                <span class="card-tag">Measurement</span>
+                <span class="card-tag">Lab Skills</span>
+                <span class="card-tag">HTML5</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- PE Diagram Maker -->
+          <a class="tool-card" href="https://chrisl18rel.github.io/PE-Diagram-Maker/" target="_blank" rel="noopener">
+            <div class="card-preview" style="overflow:hidden; pointer-events:none; background:#1a1d23;">
+              <iframe src="https://chrisl18rel.github.io/PE-Diagram-Maker/"
+                      scrolling="no"
+                      style="width:200%; height:320px; transform:scale(0.5); transform-origin:top left; border:none; display:block;">
+              </iframe>
+            </div>
+            <div class="card-body">
+              <div class="card-title">Potential Energy Diagram Builder</div>
+              <div class="card-desc">Build and customize potential energy diagrams showing activation energy, ΔH, reactants, and products for use in chemistry instruction.</div>
+              <div class="card-tags">
+                <span class="card-tag">Thermodynamics</span>
+                <span class="card-tag">Kinetics</span>
+                <span class="card-tag">HTML5</span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- Physics tab -->
+      <div id="tab-physics" class="tab-pane">
+        <div class="coming-soon">
+          <div class="coming-soon-icon">⚛️</div>
+          <h2>Physics Tools</h2>
+          <p>Interactive physics resources are currently in development. Check back soon.</p>
+          <span class="coming-soon-badge">COMING SOON</span>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+    }
+  </script>
+
+</body>
+</html>
